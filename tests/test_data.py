@@ -113,3 +113,11 @@ GITHUB_POST_RESPONSE = {
       "content": "Run `python hello_world.py` to print Hello World"
     }
 }
+
+GITHUB_ONE_POST_IN_LIST_RESPONSE = [
+    {'id': '99f98a7346faa9e86a4e3e34778eccb8',
+    'description': '',
+    'html_url': 'https://gist.github.com/99f98a7346faa9e86a4e3e34778eccb8',
+     'files': {'example.js': {'raw_url': 'https://gist.githubusercontent.com/philipkueng/99f98a7346faa9e86a4e3e34778eccb8/raw/51d069b218b1cdc80f726992ac1ce3866f9d60ae/example.js',}}
+     }
+]
