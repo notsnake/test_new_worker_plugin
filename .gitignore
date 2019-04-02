@@ -1,0 +1,17 @@
+tags
+*.pyc
+*.swp
+*.swa
+*.swo
+*.*~
+dist/
+build/
+.vagrant/
+*.egg-info
+*.log
+doctrees
+.idea
+htmlcov
+.coverage
+.coveragerc
+.DS_Store
