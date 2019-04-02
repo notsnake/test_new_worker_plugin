@@ -229,6 +229,7 @@ class PasteBinParser(BaseParser):
     BASE_URL = 'https://pastebin.com'
     POST_URL = '/raw'
     POST_LIST_URL = '/archive'
+    COUNT_POSTS_MAX = 50
 
     def _get_pastes_page_content(self):
         """Get content of page with posts.
@@ -254,17 +255,18 @@ class PasteBinParser(BaseParser):
 
         :return: list of parsed object with link and description
         """
+        count_posts = self.posts_number if 0 < self.posts_number < self.COUNT_POSTS_MAX else self.COUNT_POSTS_MAX
         pastes_page_content = self._get_pastes_page_content()
         tree = html.fromstring(pastes_page_content)
         items = tree.xpath('//table[@class="maintable"]/tr/td[1]/a')
-        return items or []
+        return items[:count_posts] or []
 
     def parse(self):
         """Start parsing.
 
         :return: found matches with urls
         """
-        log.info('We can parse free only 50 last posts')
+        log.info('We can parse free only 50 latest posts')
         items = self._get_items_for_parsing()
         response = []
         for item in items:
