@@ -26,7 +26,7 @@ class TestParsersResponse(unittest.TestCase):
         )
         with patch.object(PasteBinParser, '_get_pastes_page_content') as mock_pastebin_posts, \
                 patch.object(PasteBinParser, '_get_paste_page_content') as mock_pastebin_post, \
-                patch.object(GitHubParser, '_get_post_page_content') as mock_github_posts, \
+                patch.object(GitHubParser, '_get_post_page_list') as mock_github_posts, \
                 patch.object(GitHubParser, '_get_files_content_page') as mock_github_post:
             mock_pastebin_posts.return_value = data.PASTEBIN_POST_LIST_RESPONSE
             mock_pastebin_post.return_value = data.PASTEBIN_POST_RESPONSE
@@ -80,7 +80,7 @@ class TestParsersResponse(unittest.TestCase):
         )
         with patch.object(PasteBinParser, '_get_pastes_page_content') as mock_pastebin_posts, \
                 patch.object(PasteBinParser, '_get_paste_page_content') as mock_pastebin_post, \
-                patch.object(GitHubParser, '_get_post_page_content') as mock_github_posts, \
+                patch.object(GitHubParser, '_get_post_page_list') as mock_github_posts, \
                 patch.object(GitHubParser, '_get_files_content_page') as mock_github_post, \
                 patch.object(GitHubParser, 'COUNT_POSTS_MAX', 1):
             mock_pastebin_posts.return_value = data.PASTEBIN_POST_LIST_RESPONSE

@@ -20,7 +20,7 @@ class BaseParser:
     """
 
     BASE_URL = 'https://api.github.com'  # as only an example
-    POST_URL = '/gists/'  # as only  an example
+    POST_URL = '/gists/'  # as only an example
     POST_LIST_URL = '/gists/public'   # as only an example
     headers = {
         "Accept": "*/*",
@@ -88,19 +88,19 @@ class BaseParser:
                 raise AuthenticationException(message)
         return response
 
-    def _search_patterns_in_text(self, content):
+    def _get_matches_in_text(self, content):
         """Look for matches in content text.
 
         :param content: text for searching
         :return: found patterns in content text
         """
 
-        results = []
+        results = set()
         if content:
             for pattern in self.match_patterns.keys():
                 result = pattern.search(content)
                 if result:
-                    results.append(self.match_patterns[pattern])
+                    results.update(self.match_patterns[pattern])
         return results
 
     def _add_data_to_response(self, desc_matches, url, page_matches, response):
@@ -144,7 +144,7 @@ class GitHubParser(BaseParser):
         files = response.get('files') if response and response.get('files') else {}
         return files
 
-    def _search_patterns_on_page(self, item_id):
+    def _get_matches_on_page(self, item_id):
         """Find user matches in detail post page.
 
         :param item_id: detail page id
@@ -155,12 +155,12 @@ class GitHubParser(BaseParser):
         files = self._get_files_content_page(item_id)
         for file in files.values():
             content = file.get('content')
-            found_patterns = self._search_patterns_in_text(content)
+            found_patterns = self._get_matches_in_text(content)
             results.update(found_patterns)
         return results
 
-    def _get_post_page_content(self, url, page, count):
-        """Get post page content from github server.
+    def _get_post_page_list(self, url, page, count):
+        """Get post page list from github server.
 
         :param url: post list page url
         :param page: current page number
@@ -171,7 +171,7 @@ class GitHubParser(BaseParser):
         items = self._make_request(url, params)
         return items
 
-    def _get_pages_matches(self):
+    def _get_all_pages_matches(self):
         """Return page matches from all pages.
 
         :return: all matches in all pages
@@ -185,8 +185,8 @@ class GitHubParser(BaseParser):
             if self.posts_number - total_posts < self.COUNT_POSTS_MAX:
                 count_posts = self.posts_number - total_posts
 
-            items = self._get_post_page_content(url, page, count_posts) or []
-            response.extend(self._process_post_list_page_content(items))
+            items = self._get_post_page_list(url, page, count_posts) or []
+            response.extend(self._get_matches_from_one_page(items))
             total_posts += len(items)
             if not items or total_posts >= self.posts_number:
                 break
@@ -194,8 +194,8 @@ class GitHubParser(BaseParser):
 
         return response
 
-    def _process_post_list_page_content(self, items):
-        """Process page with post list.
+    def _get_matches_from_one_page(self, items):
+        """Process page with post list and get matches from onle one page.
 
         :param items: found detail post page objects
         :return: url with pattern matches for response
@@ -207,8 +207,8 @@ class GitHubParser(BaseParser):
                 item_desc = item.get('description')
                 url = item.get('html_url')
 
-                desc_matches = self._search_patterns_in_text(item_desc)
-                page_matches = self._search_patterns_on_page(item_id)
+                desc_matches = self._get_matches_in_text(item_desc)
+                page_matches = self._get_matches_on_page(item_id)
                 self._add_data_to_response(desc_matches, page_matches, url, response)
         return response
 
@@ -220,7 +220,7 @@ class GitHubParser(BaseParser):
 
         new_response = []
         if self.match_patterns:
-            new_response = self._get_pages_matches()
+            new_response = self._get_all_pages_matches()
         return new_response
 
 
@@ -275,7 +275,7 @@ class PasteBinParser(BaseParser):
             paste_site_url = urljoin(self.BASE_URL, paste_url)
             paste_content = self._get_paste_page_content(paste_url)
 
-            desc_matches = self._search_patterns_in_text(paste_desc)
-            page_matches = self._search_patterns_in_text(paste_content)
+            desc_matches = self._get_matches_in_text(paste_desc)
+            page_matches = self._get_matches_in_text(paste_content)
             self._add_data_to_response(desc_matches, page_matches, paste_site_url, response)
         return response
